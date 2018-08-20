@@ -7,7 +7,6 @@
         <style media="screen">
         #canvas {
                     background-image: url("./allmap.jpg");
-                    opacity: 0.5;
                 }
         </style>
 
@@ -23,6 +22,7 @@
             var oldY = 0;
             var width = 1;
             var rgbaVal = '#ff0000';
+            var canvasAlptha = 10;
             function init() {
                  var can = document.getElementById('canvas');
                  can.addEventListener("mousemove",draw,false);
@@ -32,8 +32,9 @@
             }
             function changeLine(){
                 var p = document.getElementById('lineproperty');
-                width = document.forms.lineproperty.w.value;
-                rgbaVal = document.forms.lineproperty.c.value;
+                width = p.w.value;
+                rgbaVal = p.c.value;
+                canvasAlptha = p.alpha.value;
             }
             function draw(e) {
                 if (!isMouseClicked) {
@@ -45,19 +46,39 @@
                 var con = can.getContext("2d");
                 //con.fillStyle = "rgba(255,0,0,1)";
                 //con.fillRect(x,y,10,10);
-                drawLine(oldX,oldY,x,y,rgbaVal,width);
+                drawLine(oldX,oldY,x,y,rgbaVal,canvasAlptha,width);
                 oldX = x;
                 oldY = y;
             }
-            function drawLine(x1,y1,x2,y2,c,w) {
+            function drawLine(x1,y1,x2,y2,c,a,w) {
                 var con = document.getElementById('canvas').getContext("2d");
                 con.strokeStyle = c;
                 con.lineWidth = w;
+                con.globalAlpha = a/10;
+                con.lineCap = "round";
                 con.beginPath();
                 con.moveTo(x1,y1);
                 con.lineTo(x2,y2);
                 con.stroke();
                 con.closePath();
+            }
+            function changeImage() {
+                document.getElementById('canvas').style.backgroundImage = 'url(./house.jpg)';
+
+            }
+            function clearCanvas(){
+                var con = document.getElementById('canvas').getContext("2d");
+                con.clearRect(0,0,600,600);
+            }
+            function eraseLine() {
+                var con = document.getElementById('canvas').getContext("2d");
+                var p = document.getElementById('lineproperty');
+
+                if(p.erase.checked){
+                    con.globalCompositeOperation = "destination-out";
+                }else {
+                    con.globalCompositeOperation = "source-over";
+                }
             }
         </script>
     </head>
@@ -70,7 +91,11 @@
                 <canvas class="col-lg-8" id="canvas" width="600" height="600">は？</canvas>
                 <form class="col-lg-4" id="lineproperty" name="lineproperty" onchange="changeLine()">
                     <input type="range" name="w" value="4" max="10" min="1">
+                    <input type="range" name="alpha" value="1" max="10" min="0">
                     <input type="color" name="c" value="#ff0000">
+                    <input type="button" name="clear" value="clear" onclick="clearCanvas()">
+                    <input type="button" name="change" value="change" onclick="changeImage()">
+                    <input type="checkbox" name="erase" value="消しゴム" onchange="eraseLine()">
                 </form>
             </div>
         </div>
