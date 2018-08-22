@@ -20,7 +20,7 @@
             var isMouseClicked = false;
             var oldX = 0;
             var oldY = 0;
-            var width = 1;
+            var width = 10;
             var rgbaVal = '#ff0000';
             var canvasAlptha = 10;
             function init() {
@@ -39,7 +39,8 @@
                      can.width = image.naturalWidth;
                      can.height = image.naturalHeight;
                  }
-                 image.src = "./allmap.jpg";
+                 image.src = "allmap.jpg";
+                 document.getElementById('lineproperty');
             }
             function changeLine(){
                 var p = document.getElementById('lineproperty');
@@ -95,21 +96,40 @@
         </script>
     </head>
     <body onload="init()">
-        <div class="container">
-            <div class="row">
-                    <h1>canvasのテスト</h1>
+
+        <!-- tab menu -->
+        <ul class="nav nav-tabs" id="tabs">
+            <li class="active"><a href="#chatSystem" data-toggle="tab">チャットルーム</a></li>
+            <li ><a href="#drow" data-toggle="tab">チャットルーム2</a></li>
+        </ul>
+
+        <!-- tab contents -->
+        <div class="tab-content">
+
+        <div class="tab-pane" id="chatSystem">
+            チャット用のページ？
+        </div>
+
+        <div class="tab-pane" id="drow">
+            <div class="container">
+                <div class="row">
+                        <h1>canvasのテスト</h1>
+                </div>
+                <div class="row">
+                    <canvas id="canvas" width="600" height="600">は？</canvas>
+                    <form class="col-lg-4" id="lineproperty" name="lineproperty" onchange="changeLine()">
+                        線の太さ<input type="range" name="w" value="10" max="10" min="1">
+                        線の薄さ<input type="range" name="alpha" value="10" max="10" min="0">
+                        色変更<input type="color" name="c" value="#ff0000">
+                        キャンバス全消し<input type="button" name="clear" value="clear" onclick="clearCanvas()">
+                        画像変更<input type="button" name="change" value="change" onclick="changeImage()">
+                        消しゴム<input type="checkbox" name="erase" value="消しゴム" onchange="eraseLine()">
+                    </form>
+                </div>
             </div>
-            <div class="row">
-                <canvas id="canvas" width="600" height="600">は？</canvas>
-                <form class="col-lg-4" id="lineproperty" name="lineproperty" onchange="changeLine()">
-                    線の太さ<input type="range" name="w" value="4" max="10" min="1">
-                    線の薄さ<input type="range" name="alpha" value="1" max="10" min="0">
-                    色変更<input type="color" name="c" value="#ff0000">
-                    キャンバス全消し<input type="button" name="clear" value="clear" onclick="clearCanvas()">
-                    画像変更<input type="button" name="change" value="change" onclick="changeImage()">
-                    消しゴム<input type="checkbox" name="erase" value="消しゴム" onchange="eraseLine()">
-                </form>
-            </div>
+        </div>
+
+        <!-- end of contents-->
         </div>
     </body>
 </html>
