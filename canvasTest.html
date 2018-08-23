@@ -94,6 +94,36 @@
                 }
             }
         </script>
+
+        <!-- web socket用のチャットシステム-->
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+            var serval = io.connect();
+
+            serval.on("conected",function(){});
+            serval.on("sendcliant",function(mes){addMes(mes.text);});
+
+
+            function start(){
+                serval.emit("conected");
+            }
+
+            function sendmessage() {
+                var textbox = document.getElementById('ChatContent');
+                var text = textbox.value;
+                textbox.value = "";
+                serval.emit("sendserver",{value:text});
+            }
+            function addMes(msg) {
+                var logs = document.getElementById('logs');
+                var element = document.createElement('div');
+                element.appendChild(document.createTextNode(msg));
+                element.classList.add('alert');
+                element.classList.add('alert-info');
+                logs.insertBefore(element,logs.firstChild);
+            }
+            start();
+        </script>
     </head>
     <body onload="init()">
     <header class="container-fluid bHead">
@@ -108,8 +138,22 @@
         <!-- tab contents -->
         <div class="tab-content">
 
-        <div class="tab-pane" id="chatSystem">
+        <div class="tab-pane active" id="chatSystem">
             チャット用のページ？
+            <h3>logs</h3>
+            <div class="container">
+                <div id="logs">
+
+                </div>
+            </div>
+
+
+            <form>
+                <label for="Input chat">Chat</label>
+                <textarea class="form-control" rows="3" id="ChatContent" placeholder="チャット内容"></textarea>
+                <input type="text" style="display:none">
+                <button type="button" class="btn btn-primary btn-lg" onclick="sendmessage()">send</button>
+            </form>
         </div>
 
         <div class="tab-pane" id="drow">
