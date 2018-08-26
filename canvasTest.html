@@ -6,7 +6,7 @@
         <title>test</title>
         <style media="screen">
         #canvas {
-                    background-image: url("./allmap.jpg");
+                    background-image: url("allmap.jpg");
                 }
         </style>
 
@@ -20,7 +20,7 @@
             var isMouseClicked = false;
             var oldX = 0;
             var oldY = 0;
-            var width = 1;
+            var width = 10;
             var rgbaVal = '#ff0000';
             var canvasAlptha = 10;
             function init() {
@@ -39,7 +39,8 @@
                      can.width = image.naturalWidth;
                      can.height = image.naturalHeight;
                  }
-                 image.src = "./allmap.jpg";
+                 image.src = "allmap.jpg";
+                 document.getElementById('lineproperty');
             }
             function changeLine(){
                 var p = document.getElementById('lineproperty');
@@ -93,23 +94,94 @@
                 }
             }
         </script>
+
+        <!-- web socket用のチャットシステム-->
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+            var serval = io.connect();
+
+            serval.on("conected",function(){});
+            serval.on("sendcliant",function(mes){addMes(mes.text);});
+
+
+            function start(){
+                serval.emit("conected");
+            }
+
+            function sendmessage() {
+                var textbox = document.getElementById('ChatContent');
+                var text = textbox.value;
+                textbox.value = "";
+                serval.emit("sendserver",{value:text});
+            }
+            function addMes(msg) {
+                var logs = document.getElementById('logs');
+                var element = document.createElement('div');
+                element.appendChild(document.createTextNode(msg));
+                element.classList.add('alert');
+                element.classList.add('alert-info');
+                logs.insertBefore(element,logs.firstChild);
+            }
+            start();
+        </script>
     </head>
     <body onload="init()">
-        <div class="container">
-            <div class="row">
-                    <h1>canvasのテスト</h1>
+    <header class="container-fluid bHead">
+        <h1 class="text-center text-muted">クトゥルフコミュニケーションツール</h1>
+    </header>
+        <!-- tab menu -->
+        <ul class="nav nav-tabs" id="tabs">
+            <li class="active"><a href="#chatSystem" data-toggle="tab">チャットルーム</a></li>
+            <li ><a href="#drow" data-toggle="tab">チャットルーム2</a></li>
+        </ul>
+
+        <!-- tab contents -->
+        <div class="tab-content">
+
+        <div class="tab-pane active" id="chatSystem">
+            チャット用のページ？
+            <h3>logs</h3>
+            <div class="container">
+                <div id="logs">
+
+                </div>
             </div>
-            <div class="row">
-                <canvas id="canvas" width="600" height="600">は？</canvas>
-                <form class="col-lg-4" id="lineproperty" name="lineproperty" onchange="changeLine()">
-                    線の太さ<input type="range" name="w" value="4" max="10" min="1">
-                    線の薄さ<input type="range" name="alpha" value="1" max="10" min="0">
-                    色変更<input type="color" name="c" value="#ff0000">
-                    キャンバス全消し<input type="button" name="clear" value="clear" onclick="clearCanvas()">
-                    画像変更<input type="button" name="change" value="change" onclick="changeImage()">
-                    消しゴム<input type="checkbox" name="erase" value="消しゴム" onchange="eraseLine()">
-                </form>
+
+
+            <form>
+                <label for="Input chat">Chat</label>
+                <textarea class="form-control" rows="3" id="ChatContent" placeholder="チャット内容"></textarea>
+                <input type="text" style="display:none">
+                <button type="button" class="btn btn-primary btn-lg" onclick="sendmessage()">send</button>
+            </form>
+        </div>
+
+        <div class="tab-pane" id="drow">
+            <div class="container">
+                <div class="row">
+                        <h1>canvasのテスト</h1>
+                </div>
+                <div class="row">
+                    <canvas id="canvas" width="600" height="600">は？</canvas>
+                    <form class="col-lg-4" id="lineproperty" name="lineproperty" onchange="changeLine()">
+                        線の太さ<input type="range" name="w" value="10" max="10" min="1">
+                        線の薄さ<input type="range" name="alpha" value="10" max="10" min="0">
+                        色変更<input type="color" name="c" value="#ff0000">
+                        キャンバス全消し<input type="button" name="clear" value="clear" onclick="clearCanvas()">
+                        画像変更<input type="button" name="change" value="change" onclick="changeImage()">
+                        消しゴム<input type="checkbox" name="erase" value="消しゴム" onchange="eraseLine()">
+                    </form>
+                </div>
             </div>
         </div>
+
+        <!-- end of contents-->
+        </div>
+        <footer class="text-center cotainer-fluid bFood">
+            <div class="container">
+                <span class="glyphicon glyphicon-copyright-mark" aria-hidden="true"></span> 2015-2016 <a href="http://bootstrap3.cyberlab.info/">Bootstrap3日本語リファレンス</a>
+                <p>syusi8 maked</p>
+            </div>
+        </footer>
     </body>
 </html>
