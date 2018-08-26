@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>chat cliants</title>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+            var serval = io.connect();
+
+            serval.on("conected",function(){});
+            serval.on("sendcliant",function(mes){addMes(mes.text);});
+
+
+            function start(){
+                serval.emit("conected");
+            }
+
+            function sendmessage() {
+                var textbox = document.getElementById('text');
+                var text = textbox.value;
+                textbox.value = "";
+                serval.emit("sendserver",{value:text});
+            }
+            function addMes(msg) {
+                var logs = document.getElementById('log');
+                logs.innerHTML = logs.innerHTML + msg;
+            }
+            start();
+        </script>
+    </head>
+    <body>
+        <h1>chat room?</h1>
+        <form class="">
+            <textarea id='text' rows="8" cols="80"></textarea>
+            <input type="button" name="send" value="送信" onclick="sendmessage();">
+        </form>
+        <h2>log</h2>
+        <pre>
+            <div id="log"></div>
+        </pre>
+    </body>
+</html>

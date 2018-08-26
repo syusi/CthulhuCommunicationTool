@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" crossorigin="anonymous">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
 
         <script type="text/javascript">
 
@@ -123,6 +123,28 @@
                 logs.insertBefore(element,logs.firstChild);
             }
             start();
+
+
+            var tabno = 0;
+            function addTab(){
+                var tabs = document.getElementById('tabs');
+                var li = document.createElement('li');
+                var atag = document.createElement('a');
+                atag.href = "#new"+tabno;
+                atag.setAttribute('data-toggle','tab');
+                atag.appendChild(document.createTextNode("新しいタブ"+tabno))
+                li.appendChild(atag);
+                tabs.appendChild(li);
+
+                var contents = document.getElementById('tabsContents');
+                var c = document.createElement('div');
+                c.classList.add('tab-pane');
+                c.appendChild(document.createTextNode("新しいテキスト"+tabno));
+                c.id = "new"+tabno;
+                contents.appendChild(c);
+                tabno++;
+            }
+
         </script>
     </head>
     <body onload="init()">
@@ -136,7 +158,7 @@
         </ul>
 
         <!-- tab contents -->
-        <div class="tab-content">
+        <div class="tab-content" id="tabsContents">
 
         <div class="tab-pane active" id="chatSystem">
             チャット用のページ？
@@ -153,6 +175,7 @@
                 <textarea class="form-control" rows="3" id="ChatContent" placeholder="チャット内容"></textarea>
                 <input type="text" style="display:none">
                 <button type="button" class="btn btn-primary btn-lg" onclick="sendmessage()">send</button>
+                <button type="button" name="btn btn-primary btn-lg" onclick="addTab()">新しい顔</button>
             </form>
         </div>
 

@@ -2,6 +2,7 @@
 const http = require('http');
 const fs = require('fs');
 const url = require('url');
+const socket = require('socket.io');
 
 var server = http.createServer();
 server.on('request',doRequest);
@@ -28,3 +29,24 @@ function doRequest(req,res) {
         res.end();
     });
 }
+
+//web socketの関数
+var io = socket.listen(server);
+
+io.sockets.on("connection",function(socket){
+    socket.on("conected",function() {
+        var addr = socket.request.connection.remoteAddress;
+        var id = socket.id;
+        io.sockets.emit("sendcliant",{text:id+" : 入室しました\n"});
+        console.log(addr+"入室しました\n");
+    });
+
+    socket.on("sendserver",function(mes){
+        var addr = socket.request.connection.remoteAddress;
+        var id = socket.id;
+        console.log(addr+" : "+mes.value);
+        io.sockets.emit("sendcliant",{text:id+" : "+mes.value});
+
+    });
+
+});
