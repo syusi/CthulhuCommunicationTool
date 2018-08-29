@@ -12,6 +12,10 @@ console.log('server running');
 //リクエスト処理
 function doRequest(req,res) {
     var url_parts = url.parse(req.url);
+    if (url_parts['path'] == '/') {
+        url_parts['path'] = 'canvasTest.html';
+    }
+
     console.log(url_parts);
     if (url_parts['path'].match(/.*\.jpg$/)){
         fs.readFile("."+url_parts['path'],'base64',
@@ -22,12 +26,31 @@ function doRequest(req,res) {
         });
         return;
     }
-    fs.readFile('./canvasTest.html','UTF-8',
-    function(err, data) {
-        res.writeHead(200,{'Content-Type': 'text/html'});
-        res.write(data);
-        res.end();
-    });
+
+    if (url_parts['path'].match(/.*\.js$/)){
+        fs.readFile('.' + url_parts['path'],'UTF-8',
+        function(err, data) {
+            res.writeHead(200,{'Content-Type': 'text/javascript'});
+            res.write(data);
+            res.end();
+        });
+        return;
+    }
+
+    if (url_parts['path'].match(/.*\.html$/)){
+        fs.readFile('./canvasTest.html','UTF-8',
+        function(err, data) {
+            res.writeHead(200,{'Content-Type': 'text/html'});
+            res.write(data);
+            res.end();
+        });
+        return;
+    }
+
+    res.writeHead(401);
+    res.write("File not found!!");
+    res.end();
+
 }
 
 //web socketの関数
