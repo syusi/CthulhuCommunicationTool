@@ -72,4 +72,9 @@ io.sockets.on("connection",function(socket){
 
     });
 
+    socket.on("LinePushOnServer",function(line){
+        console.log(line);
+        io.sockets.emit("DrowLineCatch",line);
+    });
+
 });

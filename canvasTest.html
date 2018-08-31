@@ -24,6 +24,9 @@
 
             serval.on("conected",function(){});
             serval.on("sendcliant",function(mes){addMes(mes.text);});
+            serval.on("DrowLineCatch",function(line){
+                drawLine(line.sX,line.sY,line.eX,line.eY,line.c,line.w);
+            });
 
 
             function start(){
@@ -43,6 +46,17 @@
                 element.classList.add('alert');
                 element.classList.add('alert-info');
                 logs.insertBefore(element,logs.firstChild);
+            }
+            function DrowLinePush(startX,startY,endX,endY,width,color) {
+                var sendmes = {
+                    sX : startX,
+                    sY : startY,
+                    eX : endX,
+                    eY : endY,
+                    w : width,
+                    c : color,
+                    }
+                serval.emit("LinePushOnServer",sendmes);
             }
             start();
 
@@ -110,7 +124,7 @@
                     <canvas id="canvas" width="600" height="600">は？</canvas>
                     <form class="col-lg-4" id="lineproperty" name="lineproperty" onchange="changeLine()">
                         線の太さ<input type="range" name="LineWidth" value="10" max="10" min="1">
-                        線の薄さ<input type="range" name="LineAlpha" value="10" max="10" min="0">
+                        <!--線の薄さ<input type="range" name="LineAlpha" value="10" max="10" min="0"> -->
                         色変更<input type="color" name="LineColor" value="#ff0000">
                         キャンバス全消し<input type="button" name="clear" value="clear" onclick="clearCanvas()">
                         画像変更<input type="button" name="change" value="change" onclick="changeImage()">

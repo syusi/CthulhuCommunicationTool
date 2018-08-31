@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>入力画面</title>
+    </head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    <body>
+        <header class="container-fluid bHead">
+            <h1 class="text-center text-muted">入力画面</h1>
+        </header>
+        <div class="container">
+            <form class="form-control" method="post">
+                名前 <input type="text" name="name" placeholder="プレイヤーネーム">
+                性別 男<input type="radio" name="man" value="男">女<input type="radio" name="woman" value="女">その他<input type="radio" name="other" value="それ以外">
+                年齢 <input type="number" name="old" value="年齢">
+                Dex <input type="number" name="dex" value="速さ" max="18" min="3">
+                <button type="button" name="btn btn-primary btn-lg">新しい顔</button>
+            </form>
+        </div>
+    </body>
+</html>

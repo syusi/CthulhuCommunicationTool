@@ -5,7 +5,7 @@ var oldX = 0;
 var oldY = 0;
 var width = 10;
 var rgbaVal = '#ff0000';
-var canvasAlptha = 10;
+//var canvasAlptha = 10;
 function init() {
      var can = document.getElementById('canvas');
      can.addEventListener("mousemove",draw,false);
@@ -27,7 +27,7 @@ function changeLine(){
     var p = document.getElementById('lineproperty');
     width = p.LineWidth.value;
     rgbaVal = p.LineColor.value;
-    canvasAlptha = p.LineAlpha.value;
+    //canvasAlptha = p.LineAlpha.value;
 }
 function draw(e) {
     if (!isMouseClicked) {
@@ -40,15 +40,16 @@ function draw(e) {
     var con = can.getContext("2d");
     //con.fillStyle = "rgba(255,0,0,1)";
     //con.fillRect(x,y,10,10);
-    drawLine(oldX,oldY,x,y,rgbaVal,canvasAlptha,width);
+    drawLine(oldX,oldY,x,y,rgbaVal,width);
+    DrowLinePush(oldX,oldY,x,y,width,rgbaVal);
     oldX = x;
     oldY = y;
 }
-function drawLine(x1,y1,x2,y2,c,a,w) {
+function drawLine(x1,y1,x2,y2,c,w) {
     var con = document.getElementById('canvas').getContext("2d");
     con.strokeStyle = c;
     con.lineWidth = w;
-    con.globalAlpha = a/10;
+    //con.globalAlpha = a/10;
     con.lineCap = "round";
     con.beginPath();
     con.moveTo(x1,y1);
