@@ -7,19 +7,37 @@ const cookie = require('cookie');
 
 //クラスの定義(ユーザーデータの保持)
 /*名前 : name、
+名前振り仮名 : namehuri、
 性別 : gender、
-年齢 : year、
+年齢 : old、
+職業 : work、
 Dex、: dex
-顔 : face
 */
-function User(_name,_gender,_year,_dex,_face) {
+/*function User(_name,_namehuri,_gender,_old,_work,_dex) {
     this.name = _name;
+    this.namehuri = _namehuri;
     this.genger = _gender;
-    this.year = _year;
+    this.old = _old;
     this.dex = _dex;
-    this.face = _face;
+    this.work = _work;
+};*/
+function User(arrayParams) {
+    this.name = arrayParams['name'];
+    this.namehuri = arrayParams['namehuri'];
+    this.genger = arrayParams['gender'];
+    this.old = arrayParams['old'];
+    this.dex = arrayParams['dex'];
+    this.work = arrayParams['work'];
+
+    this.printParam = function () {
+        var str = "";
+        for(var key in this){
+            str += (key+" : " + this[key] + "\n");
+        }
+        return str;
+    }
 }
- ;
+
 var userInfo = [];
 
 var userID = 0;
@@ -37,17 +55,17 @@ function doRequest(req,res) {
     var headProperty = {'Content-Type': 'text/html'};
 
     //初期設定、'/'かつcookie.idが無ければ最初のページへ。idがあって'/'ならcanvasTest.htmlへ飛ばす。
-    if(url_parts['pathname'] == '/' && cookies.id != null){
+    if(url_parts['pathname'] == '/' && cookies.id != null && userInfo[cookies.id] != null){
         url_parts['pathname'] = '/canvasTest.html';
-    }else if(url_parts['pathname'] == '/' && cookies.id == null) {
+    }else if((url_parts['pathname'] == '/') ) {
         url_parts['pathname'] = '/Infomation.html';
     }
-
+    url_parts['pathname'] = '.' + url_parts['pathname'];
     //console.log(url_parts);
 
     // jpg
     if (url_parts['pathname'].match(/.*\.jpg$/)){
-        fs.readFile("."+url_parts['pathname'],'base64',
+        fs.readFile(url_parts['pathname'],'base64',
         function(err,data) {
             res.writeHead(200,{'Content-Type': 'image/jpeg'});
             res.write(data,'base64');
@@ -56,8 +74,9 @@ function doRequest(req,res) {
         return;
     }
 
+    //js
     if (url_parts['pathname'].match(/.*\.js$/)){
-        fs.readFile('.' + url_parts['pathname'],'UTF-8',
+        fs.readFile(url_parts['pathname'],'UTF-8',
         function(err, data) {
             res.writeHead(200,{'Content-Type': 'text/javascript'});
             res.write(data);
@@ -67,22 +86,33 @@ function doRequest(req,res) {
     }
 
     if (url_parts['pathname'].match(/.*\.html$/)){
-        fs.readFile('.' + url_parts['pathname'],'UTF-8',
+        fs.readFile(url_parts['pathname'],'UTF-8',
         function(err, data) {
-            var c = cookie.serialize('test','日本語だと思うよ');
-            if (cookies.id == null) {
-                headProperty['Set-Cookie'] = [cookie.serialize(id,userID,{maxAge:(60*60*24)})];
-                userID++;
+            // informationのときは、特別なルーティングで
+            if(url_parts['pathname'] == './Infomation.html'){
+                res.writeHead(200,headProperty);
+                res.end(data);
+                return;
+            }
+            if (cookies.id == null || userInfo[cookies.id] == null) {
                 console.log("idpuls. now: "+userID);
-                
+                if(Object.keys(url_parts.query).length){
+                    userInfo[userID] = new User(url_parts.query);
+                }
+                headProperty['Set-Cookie'] = [cookie.serialize('id',userID,{maxAge:(60*60*24)})];
+                cookies.id = userID;
+                userID++;
             }
             res.writeHead(200,headProperty);
             res.write(data);
-            var str = "query<br>";
+            /*var str = "query<br>";
             for(var key in url_parts.query){
                 str += "key : "+key+" , data : " + url_parts.query[key];
+            }*/
+            if (cookies.id != null) {
+                console.log("login(id:" + cookies.id + ")\n params : \n" + userInfo[cookies.id].printParam());
             }
-            res.write(str);
+            //res.write(str);
             res.write("<br>cookie : " + req.headers.cookie);
             res.write("<bt>id : " + cookies.id);
             /*var body = "<br>body : ";
@@ -110,7 +140,7 @@ function chackMedia(url){
 
 //writeHeadで使う'setcookie':---を返す。
 function makeCookieElement(params) {
-    
+
 }
 
 
