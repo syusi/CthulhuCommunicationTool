@@ -3,6 +3,7 @@ const http = require('http');
 const fs = require('fs');
 const url = require('url');
 const socket = require('socket.io');
+const cookie = require('cookie');
 
 //クラスの定義(ユーザーデータの保持)
 /*名前 : name、
@@ -18,10 +19,10 @@ function User(_name,_gender,_year,_dex,_face) {
     this.dex = _dex;
     this.face = _face;
 }
-
+ ;
 var userInfo = [];
 
-
+var userID = 0;
 
 
 var server = http.createServer();
@@ -32,11 +33,18 @@ console.log('server running');
 //リクエスト処理
 function doRequest(req,res) {
     var url_parts = url.parse(req.url,true);
-    if (url_parts['pathname'] == '/') {
+    var cookies = (req.headers.cookie == null ? {} : cookie.parse(req.headers.cookie));
+    var headProperty = {'Content-Type': 'text/html'};
+
+    //初期設定、'/'かつcookie.idが無ければ最初のページへ。idがあって'/'ならcanvasTest.htmlへ飛ばす。
+    if(url_parts['pathname'] == '/' && cookies.id != null){
         url_parts['pathname'] = '/canvasTest.html';
+    }else if(url_parts['pathname'] == '/' && cookies.id == null) {
+        url_parts['pathname'] = '/Infomation.html';
     }
 
-    console.log(url_parts);
+    //console.log(url_parts);
+
     // jpg
     if (url_parts['pathname'].match(/.*\.jpg$/)){
         fs.readFile("."+url_parts['pathname'],'base64',
@@ -61,22 +69,31 @@ function doRequest(req,res) {
     if (url_parts['pathname'].match(/.*\.html$/)){
         fs.readFile('.' + url_parts['pathname'],'UTF-8',
         function(err, data) {
-            res.writeHead(200,{'Content-Type': 'text/html'});
+            var c = cookie.serialize('test','日本語だと思うよ');
+            if (cookies.id == null) {
+                headProperty['Set-Cookie'] = [cookie.serialize(id,userID,{maxAge:(60*60*24)})];
+                userID++;
+                console.log("idpuls. now: "+userID);
+                
+            }
+            res.writeHead(200,headProperty);
             res.write(data);
             var str = "query<br>";
             for(var key in url_parts.query){
                 str += "key : "+key+" , data : " + url_parts.query[key];
             }
             res.write(str);
-
-            var body = "body<br>";
+            res.write("<br>cookie : " + req.headers.cookie);
+            res.write("<bt>id : " + cookies.id);
+            /*var body = "<br>body : ";
             req.on('data',function(chanks) {
                 body += chanks;
             });
             req.on('end',function() {
                 //console.log("body" + body);
                 res.end(body);
-            });
+            });*/
+            res.end();
         });
         return;
     }
@@ -88,6 +105,11 @@ function doRequest(req,res) {
 }
 
 function chackMedia(url){
+    //メディアとエンコード形式を分けて、それを返す。
+}
+
+//writeHeadで使う'setcookie':---を返す。
+function makeCookieElement(params) {
     
 }
 
@@ -99,9 +121,12 @@ io.sockets.on("connection",function(socket){
     socket.on("conected",function() {
         var addr = socket.request.connection.remoteAddress;
         var id = socket.id;
+
+        console.log("id:" + socket.id + "\n");
         io.sockets.emit("sendcliant",{text:id+" : 入室しました\n"});
         console.log(addr+"入室しました\n");
     });
+
 
     socket.on("sendserver",function(mes){
         var addr = socket.request.connection.remoteAddress;
@@ -118,6 +143,8 @@ io.sockets.on("connection",function(socket){
 
 });
 
-function MemoryLog(Time,Text) {
-    
+function MemoryLog(id,Text) {
+    // text等のログを残す。時間と内容でよいはず。
+    // 追加、時間は要らないけど、しゃべった人は必要
+
 }
