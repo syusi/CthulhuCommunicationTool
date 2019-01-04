@@ -36,17 +36,19 @@ function draw(e) {
     var r = e.target.getBoundingClientRect();
     var x = e.clientX - r.left;
     var y = e.clientY - r.top;
-    var can = document.getElementById('canvas');
-    var con = can.getContext("2d");
+    //var can = document.getElementById('canvas');
+    //var con = can.getContext("2d");
     //con.fillStyle = "rgba(255,0,0,1)";
     //con.fillRect(x,y,10,10);
-    drawLine(oldX,oldY,x,y,rgbaVal,width);
+    drawLine(oldX,oldY,x,y,width,rgbaVal);
     DrowLinePush(oldX,oldY,x,y,width,rgbaVal);
     oldX = x;
     oldY = y;
+
 }
-function drawLine(x1,y1,x2,y2,c,w) {
-    var con = document.getElementById('canvas').getContext("2d");
+function drawLine(x1,y1,x2,y2,w,c) {
+    var can = document.getElementById("canvas");
+    var con = can.getContext("2d");
     con.strokeStyle = c;
     con.lineWidth = w;
     //con.globalAlpha = a/10;

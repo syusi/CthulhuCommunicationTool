@@ -148,13 +148,24 @@ function makeCookieElement(params) {
 var io = socket.listen(server);
 
 io.sockets.on("connection",function(socket){
-    socket.on("conected",function() {
+    socket.on("conected",function(num) {
         var addr = socket.request.connection.remoteAddress;
         var id = socket.id;
 
         console.log("id:" + socket.id + "\n");
-        io.sockets.emit("sendcliant",{text:id+" : 入室しました\n"});
-        console.log(addr+"入室しました\n");
+        console.log("num" + num['id']);
+        
+        io.sockets.emit("sendcliant",{text:userInfo[num['id']].name+" : 入室しました\n"});
+        console.log(userInfo[num['id']].name+" : 入室しました\n");
+
+        //自分以外に自分のデータを流す。最ログインの場合は要らない
+        socket.broadcast.emit("MemberInfoCatch",userInfo[num['id']],num['id']);
+
+        //自分に全てのデータを流す。
+        for (let i = 0; i < userInfo.length; i++) {
+            io.to(socket.id).emit("MemberInfoCatch",userInfo[i],i);
+        }
+
     });
 
 

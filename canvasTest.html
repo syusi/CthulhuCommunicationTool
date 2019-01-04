@@ -4,16 +4,34 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>test</title>
+        <style type="text/css">
+            header {
+                background-color: azure;
+            }
+            footer {
+                background-color: azure;
+            }
+            #mes {
+                border: solid;
+            }
+        </style>
+
         <style media="screen">
         #canvas {
                     background-image: url("allmap.jpg");
                 }
         </style>
-
+        <!--
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" crossorigin="anonymous">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
+        -->
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 
         <script src="./Canvas.js"></script>
 
@@ -21,31 +39,57 @@
         <script src="/socket.io/socket.io.js"></script>
         <script type="text/javascript">
             var serval = io.connect();
+            var myId = 0;
 
             serval.on("conected",function(){});
             serval.on("sendcliant",function(mes){addMes(mes.text);});
             serval.on("DrowLineCatch",function(line){
-                drawLine(line.sX,line.sY,line.eX,line.eY,line.c,line.w);
+                drawLine(line.sX,line.sY,line.eX,line.eY,line.w,line.c);
+            });
+            serval.on("MemberInfoCatch",function(params,id) {
+                addMemberInfo(params,id);
             });
 
 
             function start(){
-                serval.emit("conected");
+                var c = document.cookie.split(";");
+                if (c == '') {
+                    myId = 0;
+                }else{
+                    for (let n = 0; n < c.length; n++) {
+                        if(c[n].indexOf("id=") >= 0){
+                            myId = c[n].split("=")[1];
+                            break;
+                        }
+                    }
+                }
+                console.log("myId : " + myId);
+                serval.emit("conected",{id:myId});
             }
 
             function sendmessage() {
                 var textbox = document.getElementById('ChatContent');
-                var text = textbox.value;
-                textbox.value = "";
-                serval.emit("sendserver",{value:text});
+                if (textbox.value != "") {
+                    var text = textbox.value;
+                    textbox.value = "";
+                    serval.emit("sendserver",{value:text});
+                }
             }
             function addMes(msg) {
                 var logs = document.getElementById('logs');
-                var element = document.createElement('div');
-                element.appendChild(document.createTextNode(msg));
-                element.classList.add('alert');
-                element.classList.add('alert-info');
-                logs.insertBefore(element,logs.firstChild);
+                var div = document.createElement('div');
+                msg = msg.replace(/&/g,"&amp");
+                msg = msg.replace(/</g,"&lt");
+                msg = msg.replace(/>/g,"&gt");
+                msg = msg.replace(/ /g,"&nbsp");
+                msg = msg.replace(/\r\n/g, "<br>");
+                msg = msg.replace(/(\n|\r)/g, "<br>");
+                div.innerHTML = msg;
+                //div.appendChild(document.createTextNode(msg));
+                div.classList.add('alert');
+                div.classList.add('alert-light');
+                div.id = "mes";
+                logs.insertBefore(div,logs.firstChild);
             }
             function DrowLinePush(startX,startY,endX,endY,width,color) {
                 var sendmes = {
@@ -55,7 +99,7 @@
                     eY : endY,
                     w : width,
                     c : color,
-                    }
+                }
                 serval.emit("LinePushOnServer",sendmes);
             }
             start();
@@ -65,9 +109,11 @@
             function addTab(){
                 var tabs = document.getElementById('tabs');
                 var li = document.createElement('li');
+                li.classList.add('nav-item');
                 var atag = document.createElement('a');
                 atag.href = "#new"+tabno;
                 atag.setAttribute('data-toggle','tab');
+                atag.classList.add("nav-link");
                 atag.appendChild(document.createTextNode("新しいタブ"+tabno))
                 li.appendChild(atag);
                 tabs.appendChild(li);
@@ -80,39 +126,75 @@
                 contents.appendChild(c);
                 tabno++;
             }
+            var memno = 0;
+            function addMemberInfo(params,id) {
+                if(id < memno){
+                    return;
+                }
+                memno++;
+                var table = document.getElementById('memberTable');
+                var tr = document.createElement('tr');
+                var th = document.createElement('th');
+                th.scope = 'row';
+                th.appendChild(document.createTextNode(id));
+                tr.appendChild(th);
+                    for(var key in params){
+                        var td = document.createElement('td');
+                        td.appendChild(document.createTextNode(params[key]));
+                        tr.appendChild(td);
+                    }
+                table.appendChild(tr);
+            }
 
         </script>
     </head>
     <body onload="init()">
-    <header class="container-fluid bHead">
+    <header class="container-fluid bHead sticky-top">
         <h1 class="text-center text-muted">クトゥルフコミュニケーションツール</h1>
-    </header>
         <!-- tab menu -->
+        <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#memberInfo">メンバー情報</button>
+        <div class="collapse" id="memberInfo">
+                <table class="table">
+                        <caption>メンバー情報</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">No.</th><th scope="col">Name</th><th scope="col">Reading</th><th scope="col">gender</th><th scope="col">old</th><th scope="col">dex</th><th scope="work">work</th>
+                            </tr>
+                        </thead>
+                        <tbody id="memberTable">
+
+                        </tbody>
+                </table>
+        </div>
         <ul class="nav nav-tabs" id="tabs">
-            <li class="active"><a href="#chatSystem" data-toggle="tab">チャットルーム</a></li>
-            <li ><a href="#drow" data-toggle="tab">チャットルーム2</a></li>
+            <li class="nav-item"><a href="#chatSystem" class="nav-link active" data-toggle="tab">チャットルーム</a></li>
+            <li class="nav-item"><a href="#drow" class="nav-link" data-toggle="tab">チャットルーム2</a></li>
         </ul>
+    </header>
+
 
         <!-- tab contents -->
         <div class="tab-content" id="tabsContents">
 
         <div class="tab-pane active" id="chatSystem">
             チャット用のページ？
-            <h3>logs</h3>
-            <div class="container">
-                <div id="logs">
 
-                </div>
+            <div class="container">
+                <form>
+                    <h3><label for="ChatContent">Chat</label></h3>
+                    <textarea class="form-control" rows="3" id="ChatContent" placeholder="チャット内容"></textarea>
+                    <input type="text" style="display:none">
+                    <button type="button" class="btn btn-primary btn-lg rounded-pill" onclick="sendmessage()">送信</button>
+                    <button type="button" name="btn btn-primary btn-lg" onclick="addTab()">新しい顔</button>
+                    <button type="button" name="btn btn-primary btn-lg" onclick="addMemberInfo()">新しい人</button>
+                </form>
             </div>
 
+            <div class="container">
+                    <div id="logs">
 
-            <form>
-                <label for="Input chat">Chat</label>
-                <textarea class="form-control" rows="3" id="ChatContent" placeholder="チャット内容"></textarea>
-                <input type="text" style="display:none">
-                <button type="button" class="btn btn-primary btn-lg" onclick="sendmessage()">send</button>
-                <button type="button" name="btn btn-primary btn-lg" onclick="addTab()">新しい顔</button>
-            </form>
+                    </div>
+            </div>
         </div>
 
         <div class="tab-pane" id="drow">
@@ -134,13 +216,16 @@
             </div>
         </div>
 
-        <!-- end of contents-->
         </div>
-        <footer class="text-center cotainer-fluid bFood">
+        <!-- end of contents-->
+        <!--
+        <footer class="text-center cotainer-fluid bFood fixed-bottom">
             <div class="container">
-                <span class="glyphicon glyphicon-copyright-mark" aria-hidden="true"></span> 2015-2016 <a href="http://bootstrap3.cyberlab.info/">Bootstrap3日本語リファレンス</a>
+                <span class="glyphicon glyphicon-copyright-mark" aria-hidden="true"></span> 2015-2016 <a href="http://bootstrap3.cyberlab.info/">Bootstrap3日本語リファレンス</a><br>
+                <span class="glyphicon glyphicon-copyright-mark" aria-hidden="true"></span> 2018 <a href="https://cccabinet.jpn.org/bootstrap4/">Bootstrap4移行ガイド</a><br>
                 <p>syusi8 maked</p>
             </div>
         </footer>
+        -->
     </body>
 </html>
