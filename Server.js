@@ -4,6 +4,7 @@ const fs = require('fs');
 const url = require('url');
 const socket = require('socket.io');
 const cookie = require('cookie');
+const date = require('date-utils');
 
 //クラスの定義(ユーザーデータの保持)
 /*名前 : name、
@@ -148,12 +149,13 @@ function makeCookieElement(params) {
 var io = socket.listen(server);
 
 io.sockets.on("connection",function(socket){
+    //connectionが成功したときの最初の動作
     socket.on("conected",function(num) {
-        var addr = socket.request.connection.remoteAddress;
+        //var addr = socket.request.connection.remoteAddress;
         var id = socket.id;
 
         console.log("id:" + socket.id + "\n");
-        console.log("num" + num['id']);
+        //console.log("num" + num['id']);
         
         io.sockets.emit("sendcliant",{text:userInfo[num['id']].name+" : 入室しました\n"});
         console.log(userInfo[num['id']].name+" : 入室しました\n");
@@ -168,15 +170,16 @@ io.sockets.on("connection",function(socket){
 
     });
 
-
+    //通常メッセージのサーバーへの受信
     socket.on("sendserver",function(mes){
-        var addr = socket.request.connection.remoteAddress;
-        var id = socket.id;
-        console.log(addr+" : "+mes.value);
-        io.sockets.emit("sendcliant",{text:id+" : "+mes.value});
-
+        //var addr = socket.request.connection.remoteAddress;
+        //var id = socket.id;
+        console.log(userInfo[mes.id].name+" : "+mes.value);
+        io.sockets.emit("sendcliant",{text:userInfo[mes.id].name+" : "+mes.value});
+        MemoryLog(userInfo[mes.id],mes.value);
     });
 
+    //canvasのメッセージの受信
     socket.on("LinePushOnServer",function(line){
         console.log(line);
         io.sockets.emit("DrowLineCatch",line);
@@ -184,8 +187,16 @@ io.sockets.on("connection",function(socket){
 
 });
 
-function MemoryLog(id,Text) {
+function MemoryLog(id,text) {
     // text等のログを残す。時間と内容でよいはず。
     // 追加、時間は要らないけど、しゃべった人は必要
+    var dt = new Date();
+    var formatted = dt.toFormat("YYYY/MM/DD HH24時MI分SS秒 :\n");
 
+    var content = formatted + id + " : " + text + "\n";
+    fs.appendFile('log.txt',content,function (err) {
+        if (err != null) {
+            throw err;
+        }
+    });
 }

@@ -72,7 +72,7 @@
                 if (textbox.value != "") {
                     var text = textbox.value;
                     textbox.value = "";
-                    serval.emit("sendserver",{value:text});
+                    serval.emit("sendserver",{value:text,id:myId});
                 }
             }
             function addMes(msg) {
@@ -154,8 +154,9 @@
         <!-- tab menu -->
         <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#memberInfo">メンバー情報</button>
         <div class="collapse" id="memberInfo">
+            <div class="container">
                 <table class="table">
-                        <caption>メンバー情報</caption>
+                        <caption></caption>
                         <thead>
                             <tr>
                                 <th scope="col">No.</th><th scope="col">Name</th><th scope="col">Reading</th><th scope="col">gender</th><th scope="col">old</th><th scope="col">dex</th><th scope="work">work</th>
@@ -165,6 +166,7 @@
 
                         </tbody>
                 </table>
+            </div>
         </div>
         <ul class="nav nav-tabs" id="tabs">
             <li class="nav-item"><a href="#chatSystem" class="nav-link active" data-toggle="tab">チャットルーム</a></li>
@@ -198,20 +200,39 @@
         </div>
 
         <div class="tab-pane" id="drow">
-            <div class="container">
-                <div class="row">
+            <div class="container-fluid">
+                <div>
                         <h1>canvasのテスト</h1>
                 </div>
                 <div class="row">
-                    <canvas id="canvas" width="600" height="600">は？</canvas>
-                    <form class="col-lg-4" id="lineproperty" name="lineproperty" onchange="changeLine()">
-                        線の太さ<input type="range" name="LineWidth" value="10" max="10" min="1">
-                        <!--線の薄さ<input type="range" name="LineAlpha" value="10" max="10" min="0"> -->
-                        色変更<input type="color" name="LineColor" value="#ff0000">
-                        キャンバス全消し<input type="button" name="clear" value="clear" onclick="clearCanvas()">
-                        画像変更<input type="button" name="change" value="change" onclick="changeImage()">
-                        消しゴム<input type="checkbox" name="erase" value="消しゴム" onchange="eraseLine()">
-                    </form>
+                    <div class="col-2">
+                        <form id="lineproperty" name="lineproperty" onchange="changeLine()">
+                            <div class="form-group">
+                                <label>線の太さ</label>
+                                <input type="range" name="LineWidth" class="form-control-range" value="10" max="10" min="1">
+                            </div>
+                            <!--線の薄さ<input type="range" name="LineAlpha" value="10" max="10" min="0"> -->
+                            <div class="form-group">
+                                <label>色変更</label>
+                                <input type="color" class="form-control" name="LineColor" value="#ff0000">
+                            </div>
+                            <div class="form-group">
+                                <label>キャンバス全消し</label>
+                                <input type="button" class="btn btn-info form-control" name="clear" value="clear" onclick="clearCanvas()">
+                            </div>
+                            <div class="form-group">
+                                <label>画像変更</label>
+                                <input type="button" class="btn btn-info form-control" name="change" value="change" onclick="changeImage()">
+                            </div>
+                            <div class="form-group">
+                                <label>消しゴム</label>
+                                <input type="checkbox" class="form-control" name="erase" value="消しゴム" onchange="eraseLine()">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-10">
+                        <canvas id="canvas" width="600" height="600">は？</canvas>
+                    </div>
                 </div>
             </div>
         </div>
