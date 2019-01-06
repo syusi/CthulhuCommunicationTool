@@ -157,8 +157,8 @@ io.sockets.on("connection",function(socket){
         console.log("id:" + socket.id + "\n");
         //console.log("num" + num['id']);
         
-        io.sockets.emit("sendcliant",{text:userInfo[num['id']].name+" : 入室しました\n"});
-        console.log(userInfo[num['id']].name+" : 入室しました\n");
+        io.sockets.emit("sendcliant",{text:userInfo[num['id']].name+" : \n入室しました\n"});
+        console.log(userInfo[num['id']].name+" : \n入室しました\n");
 
         //自分以外に自分のデータを流す。最ログインの場合は要らない
         socket.broadcast.emit("MemberInfoCatch",userInfo[num['id']],num['id']);
@@ -174,9 +174,50 @@ io.sockets.on("connection",function(socket){
     socket.on("sendserver",function(mes){
         //var addr = socket.request.connection.remoteAddress;
         //var id = socket.id;
-        console.log(userInfo[mes.id].name+" : "+mes.value);
-        io.sockets.emit("sendcliant",{text:userInfo[mes.id].name+" : "+mes.value});
+        console.log(userInfo[mes.id].name+" : \n"+mes.value);
+        io.sockets.emit("sendcliant",{text:userInfo[mes.id].name+" : \n"+mes.value});
         MemoryLog(userInfo[mes.id],mes.value);
+    });
+
+    //戦闘の際の順番提示
+    socket.on("battleEvent",function(params) {
+        //data = [{no:1,name:"aaa",dex:18},{no:2,name:"bbb",dex:3}];
+        var battleParam = []
+        //console.log(params);
+        var Player = params[0];
+        //console.log("P:"+Player['0']+"\nl:"+Object.keys(Player).length);
+        for (let i = 0; i < Object.keys(Player).length; i++) {
+            if (Player[i]) {
+                //console.log("\nin");
+                battleParam.push({no:0,name:userInfo[i].name,dex:(userInfo[i].dex*4)});
+            }
+        }
+
+        var EnemyNo = 65;
+        for (let i = 1; i < params.length; i++) {
+            var element = params[i];
+            for (let j = 0; j < element['Num']; j++) {
+                battleParam.push({no:0,name:(element['Name']+String.fromCharCode(EnemyNo)),dex:(element['Dex']*4)});
+                EnemyNo++;
+            }
+        }
+
+        battleParam.sort(function(a,b){
+            if(a.dex > b.dex) return -1;
+            if(a.dex < b.dex) return 1;
+            return 0;
+        });
+
+        for (let i = 0; i < battleParam.length; i++) {
+            battleParam[i].no = i+1;
+        }
+        console.log(battleParam);
+        MemoryLog('battle',battleParam);
+        io.sockets.emit("ButtleInfoCatch",battleParam);
+    });
+    //画像タブの生成
+    socket.on("addTabEvent",function(){
+
     });
 
     //canvasのメッセージの受信

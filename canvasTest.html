@@ -11,8 +11,8 @@
             footer {
                 background-color: azure;
             }
-            #mes {
-                border: solid;
+            .mes {
+                border: solid thin #CCCCFF;
             }
         </style>
 
@@ -40,6 +40,7 @@
         <script type="text/javascript">
             var serval = io.connect();
             var myId = 0;
+            var master = false;
 
             serval.on("conected",function(){});
             serval.on("sendcliant",function(mes){addMes(mes.text);});
@@ -49,6 +50,10 @@
             serval.on("MemberInfoCatch",function(params,id) {
                 addMemberInfo(params,id);
             });
+            serval.on("ButtleInfoCatch",function(params) {
+                //配列の中見は{順番,名前,回避}
+                addBattleTable(params);
+            })
 
 
             function start(){
@@ -86,11 +91,39 @@
                 msg = msg.replace(/(\n|\r)/g, "<br>");
                 div.innerHTML = msg;
                 //div.appendChild(document.createTextNode(msg));
-                div.classList.add('alert');
-                div.classList.add('alert-light');
-                div.id = "mes";
+                div.classList.add('border');
+                //div.classList.add('alert-light');
+                div.classList.add('border-secondary');
+                div.classList.add('rounded');
                 logs.insertBefore(div,logs.firstChild);
             }
+
+            function addBattleTable(data){
+                //data = [{no:1,name:"aaa",dex:18},{no:2,name:"bbb",dex:3}];
+                var logs = document.getElementById('logs');
+                var table = document.createElement('table');
+                table.classList.add('table');
+                table.classList.add('border');
+                table.classList.add('border-secondary');
+                table.classList.add('rounded');
+                table.classList.add('mb-0');
+                table.innerHTML = '<thead>'+
+                                    '<tr><th scope="順番">No.</th><th scope="col">Name</th><th scope="col">回避</th></tr>'+
+                                '</thead>';
+                var body = document.createElement('tbody');
+                for(var i = 0; i < data.length; i++){
+                    var tr = document.createElement('tr');
+                    for(var d in data[i]){
+                        var td = document.createElement('td');
+                        td.appendChild(document.createTextNode(data[i][d]));
+                        tr.appendChild(td);
+                    }
+                    body.appendChild(tr);
+                }
+                table.appendChild(body);
+                logs.insertBefore(table,logs.firstChild);
+            }
+
             function DrowLinePush(startX,startY,endX,endY,width,color) {
                 var sendmes = {
                     sX : startX,
@@ -144,7 +177,64 @@
                         tr.appendChild(td);
                     }
                 table.appendChild(tr);
+                
+                //Master用機能
+                var buttleform = document.getElementById("playerjoinform");
+                var addform = '<input type="checkbox" name="'+id+'"><label>Player'+id+'</label>';
+                buttleform.innerHTML +=  addform;
             }
+
+            //ここからMaster用の機能
+            var enemyContentNum = 0;
+            function addEnemyform() {
+                var div = document.createElement('div');
+                div.classList.add('form-group');
+                div.name = "enemy"+enemyContentNum;
+                var addform =   '<label>敵名</label><input type="text" class="mr-2" name="enemyName">'+
+                                '<label>敵dex</label><input type="number" class="mr-2" name="dex" min=0>'+
+                                '<label>敵の数</label><input type="number" class="mr-2" name="enemyNum" min=0>';
+                div.innerHTML = addform;
+
+                var form = document.getElementById("enemyjoinform");
+                form.appendChild(div);
+                enemyContentNum++;
+            }
+
+            function sendButtleEvent(){
+
+                //player情報の取得
+                var playerjoinform = document.getElementById('playerjoinform');
+                var playerjoin = playerjoinform.childNodes;
+                var battleParam = [];
+                //playerinfo {no:checked...}
+                var playerinfo = {};
+                for (let index = 0; index < playerjoin.length; index++) {
+                    const element = playerjoin[index];
+                    if (element.tagName == "INPUT"){
+                        playerinfo[element.name] = element.checked;
+                    }
+                }
+                battleParam.push(playerinfo);
+
+                //敵情報の取得
+                var enemyjoinform = document.getElementById('enemyjoinform');
+                var enemyinfo = enemyjoinform.childNodes;
+
+                for (let index = 0; index < enemyinfo.length; index++) {
+                    const element = enemyinfo[index];
+                    var enemyparam = {};
+                    if (element.tagName == "DIV") {
+                        enemyparam["Name"] = element.children['enemyName'].value;
+                        enemyparam["Dex"] = element.children['dex'].value;
+                        enemyparam["Num"] = element.children['enemyNum'].value;
+                        battleParam.push(enemyparam);
+                    }
+                }
+
+                serval.emit("battleEvent",battleParam);
+                enemyjoinform.innerHTML = '<input type="button" class="btn btn-success" value="敵情報追加" onclick="addEnemyform()">';
+            }
+
 
         </script>
     </head>
@@ -153,21 +243,36 @@
         <h1 class="text-center text-muted">クトゥルフコミュニケーションツール</h1>
         <!-- tab menu -->
         <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#memberInfo">メンバー情報</button>
+        <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#battleInfo">戦闘送信</button>
         <div class="collapse" id="memberInfo">
             <div class="container">
                 <table class="table">
-                        <caption></caption>
-                        <thead>
-                            <tr>
-                                <th scope="col">No.</th><th scope="col">Name</th><th scope="col">Reading</th><th scope="col">gender</th><th scope="col">old</th><th scope="col">dex</th><th scope="work">work</th>
-                            </tr>
-                        </thead>
-                        <tbody id="memberTable">
+                    <caption></caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">No.</th><th scope="col">Name</th><th scope="col">Reading</th><th scope="col">gender</th><th scope="col">old</th><th scope="col">dex</th><th scope="work">work</th>
+                        </tr>
+                    </thead>
+                    <tbody id="memberTable">
 
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
+
+        <div class="collapse" id="battleInfo">
+                <div class="container">
+                    <form>
+                        <div class=" form-group" id="playerjoinform">
+                            <label>プレイヤー参加</label>
+                        </div>
+                        <div class="form-group" id="enemyjoinform">
+                            <input type="button" class="btn btn-success" value="敵情報追加" onclick="addEnemyform()">
+                        </div>
+                        <input type="button" class="btn btn-primary" value="送信" onclick="sendButtleEvent()">
+                    </form>
+                </div>
+            </div>
         <ul class="nav nav-tabs" id="tabs">
             <li class="nav-item"><a href="#chatSystem" class="nav-link active" data-toggle="tab">チャットルーム</a></li>
             <li class="nav-item"><a href="#drow" class="nav-link" data-toggle="tab">チャットルーム2</a></li>
@@ -183,12 +288,13 @@
 
             <div class="container">
                 <form>
-                    <h3><label for="ChatContent">Chat</label></h3>
-                    <textarea class="form-control" rows="3" id="ChatContent" placeholder="チャット内容"></textarea>
-                    <input type="text" style="display:none">
-                    <button type="button" class="btn btn-primary btn-lg rounded-pill" onclick="sendmessage()">送信</button>
-                    <button type="button" name="btn btn-primary btn-lg" onclick="addTab()">新しい顔</button>
-                    <button type="button" name="btn btn-primary btn-lg" onclick="addMemberInfo()">新しい人</button>
+                    <div class="form-group">
+                        <h3><label for="ChatContent">Chat</label></h3>
+                        <textarea class="form-control" rows="3" id="ChatContent" placeholder="チャット内容"></textarea>
+                        <input type="text" style="display:none">
+                        <button type="button" class="btn btn-primary btn-lg rounded-pill" onclick="sendmessage()">送信</button>
+                        <button type="button" name="btn btn-primary btn-lg" onclick="addTab()">新しい顔</button>
+                    </div>
                 </form>
             </div>
 
