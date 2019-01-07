@@ -42,6 +42,7 @@ function User(arrayParams) {
 var userInfo = [];
 
 var userID = 0;
+var Masterin = false;
 
 
 var server = http.createServer();
@@ -57,10 +58,18 @@ function doRequest(req,res) {
 
     //初期設定、'/'かつcookie.idが無ければ最初のページへ。idがあって'/'ならcanvasTest.htmlへ飛ばす。
     if(url_parts['pathname'] == '/' && cookies.id != null && userInfo[cookies.id] != null){
-        url_parts['pathname'] = '/canvasTest.html';
+        url_parts['pathname'] = '/Player.html';
     }else if((url_parts['pathname'] == '/') ) {
         url_parts['pathname'] = '/Infomation.html';
     }
+    //Master用
+    /*if ((url_parts['pathname'] == '/canvasTest.html')　&& Masterin) {
+        url_parts['pathname'] = '/canvasTest.html';
+    }else{
+        console.log('masterin');
+        Masterin = true;
+    }*/
+
     url_parts['pathname'] = '.' + url_parts['pathname'];
     //console.log(url_parts);
 
@@ -114,8 +123,8 @@ function doRequest(req,res) {
                 console.log("login(id:" + cookies.id + ")\n params : \n" + userInfo[cookies.id].printParam());
             }
             //res.write(str);
-            res.write("<br>cookie : " + req.headers.cookie);
-            res.write("<bt>id : " + cookies.id);
+            //res.write("<br>cookie : " + req.headers.cookie);
+            //res.write("<bt>id : " + cookies.id);
             /*var body = "<br>body : ";
             req.on('data',function(chanks) {
                 body += chanks;
@@ -216,8 +225,9 @@ io.sockets.on("connection",function(socket){
         io.sockets.emit("ButtleInfoCatch",battleParam);
     });
     //画像タブの生成
-    socket.on("addTabEvent",function(){
-
+    socket.on("CanvasInfoSend",function(info){
+        MemoryLog('canvas',info);
+        io.sockets.emit("CanvasInfoCatch",info);
     });
 
     //canvasのメッセージの受信
@@ -233,8 +243,7 @@ function MemoryLog(id,text) {
     // 追加、時間は要らないけど、しゃべった人は必要
     var dt = new Date();
     var formatted = dt.toFormat("YYYY/MM/DD HH24時MI分SS秒 :\n");
-
-    var content = formatted + id + " : " + text + "\n";
+    var content = formatted + JSON.stringify(id) + " : " + JSON.stringify(text) + "\n";
     fs.appendFile('log.txt',content,function (err) {
         if (err != null) {
             throw err;

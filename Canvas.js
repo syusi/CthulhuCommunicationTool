@@ -16,12 +16,13 @@ function init() {
                                                      oldY = e.clientY-r.top;
                                                 },false);
      can.addEventListener("mouseup",function(e){isMouseClicked = false;},false);
-     var image = new Image();
+     /*var image = new Image();
      image.onload = function(){
          can.width = image.naturalWidth;
          can.height = image.naturalHeight;
      }
      image.src = "allmap.jpg";
+     can.style.backgroundImage = 'url(allmap.jpg)';*/
 }
 function changeLine(){
     var p = document.getElementById('lineproperty');
@@ -59,8 +60,15 @@ function drawLine(x1,y1,x2,y2,w,c) {
     con.stroke();
     con.closePath();
 }
-function changeImage() {
-    document.getElementById('canvas').style.backgroundImage = 'url(./house.jpg)';
+function changeImage(imageName) {
+    var image = new Image();
+    var can = document.getElementById('canvas');
+    image.onload = function(){
+        can.width = image.naturalWidth;
+        can.height = image.naturalHeight;
+    }
+    image.src = imageName;
+    can.style.backgroundImage = 'url('+imageName+')';
 
 }
 function clearCanvas(){
