@@ -244,15 +244,19 @@ io.sockets.on("connection",function(socket){
     socket.on("DaiceInfoSend",function(info){
         console.log(info);
         var result = userInfo[info.id].name+" : \n";
-        result += info['surface']+"d"+info['num']+" ";
+        result += info['num']+"d"+info['surface']+" ";
         var rand = 0;
+        var sum = 0;
         for (let i = 0; i < info['num']; i++) {
             var rand = Math.floor(Math.random() * Math.floor(info['surface']))+1;
             result += rand + " ";
+            sum += rand;
         }
         if(info['surface'] == 100 && info['num'] == 1){
             result += (rand <= 5) ? "クリティカル!!" : "";
             result += (rand >= 96) ? "ファンブル!!" : "";
+        }else if(info['num'] != 1){
+            result += "(sum:"+sum+")";
         }
         MemoryLog("daice",info);
         io.sockets.emit("sendcliant",{text:result});

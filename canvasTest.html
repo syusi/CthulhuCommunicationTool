@@ -43,6 +43,13 @@
             var serval = io.connect();
             var myId = 0;
             var master = false;
+            
+
+            window.addEventListener('beforeunload', function(e) {
+                e.returnValue = 'ちょっと待ってくださいよ。まだダメですよ。';
+            }, false);
+
+
 
             serval.on("conected",function(){});
             serval.on("sendcliant",function(mes){addMes(mes.text);});
@@ -329,8 +336,8 @@
             <div class="container">
                 <form>
                     <div class=" form-group" id="Daiceform">
-                        <label>ダイス : </label><input type="number" name="num" min="1">
-                        <label>d</label><input type="number" name="surface" min="1">
+                        <label>ダイス : </label><input type="number" name="num" min="1" max="100">
+                        <label>d</label><input type="number" name="surface" min="1" max="100">
                     </div>
                     <input type="button" class="btn btn-primary" value="送信" onclick="sendDaiceInfo()">
                 </form>
