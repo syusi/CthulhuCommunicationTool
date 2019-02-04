@@ -58,7 +58,7 @@ function doRequest(req,res) {
 
     //初期設定、'/'かつcookie.idが無ければ最初のページへ。idがあって'/'ならcanvasTest.htmlへ飛ばす。
     if(url_parts['pathname'] == '/' && cookies.id != null && userInfo[cookies.id] != null){
-        url_parts['pathname'] = '/Player.html';
+        url_parts['pathname'] = '/canvasTest.html';
     }else if((url_parts['pathname'] == '/') ) {
         url_parts['pathname'] = '/Infomation.html';
     }
@@ -205,9 +205,14 @@ io.sockets.on("connection",function(socket){
         var EnemyNo = 65;
         for (let i = 1; i < params.length; i++) {
             var element = params[i];
-            for (let j = 0; j < element['Num']; j++) {
-                battleParam.push({no:0,name:(element['Name']+String.fromCharCode(EnemyNo)),dex:(element['Dex']*4)});
-                EnemyNo++;
+            if (element['Num'] == 1) {
+                battleParam.push({no:0,name:element['Name'],dex:(element['Dex']*4)});
+            }else{
+                for (let j = 0; j < element['Num']; j++) {
+                    battleParam.push({no:0,name:(element['Name']+String.fromCharCode(EnemyNo)),dex:(element['Dex']*4)});
+                    EnemyNo++;
+                }
+                EnemyNo = 65;
             }
         }
 
@@ -234,6 +239,27 @@ io.sockets.on("connection",function(socket){
     socket.on("LinePushOnServer",function(line){
         console.log(line);
         io.sockets.emit("DrowLineCatch",line);
+    });
+
+    socket.on("DaiceInfoSend",function(info){
+        console.log(info);
+        var result = userInfo[info.id].name+" : \n";
+        result += info['num']+"d"+info['surface']+" ";
+        var rand = 0;
+        var sum = 0;
+        for (let i = 0; i < info['num']; i++) {
+            var rand = Math.floor(Math.random() * Math.floor(info['surface']))+1;
+            result += rand + " ";
+            sum += rand;
+        }
+        if(info['surface'] == 100 && info['num'] == 1){
+            result += (rand <= 5) ? "クリティカル!!" : "";
+            result += (rand >= 96) ? "ファンブル!!" : "";
+        }else if(info['num'] != 1){
+            result += "(sum:"+sum+")";
+        }
+        MemoryLog("daice",info);
+        io.sockets.emit("sendcliant",{text:result});
     });
 
 });

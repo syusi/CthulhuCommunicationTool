@@ -5,6 +5,7 @@ var oldX = 0;
 var oldY = 0;
 var width = 10;
 var rgbaVal = '#ff0000';
+var eraser = false;
 //var canvasAlptha = 10;
 function init() {
      var can = document.getElementById('canvas');
@@ -41,17 +42,22 @@ function draw(e) {
     //var con = can.getContext("2d");
     //con.fillStyle = "rgba(255,0,0,1)";
     //con.fillRect(x,y,10,10);
-    drawLine(oldX,oldY,x,y,width,rgbaVal);
-    DrowLinePush(oldX,oldY,x,y,width,rgbaVal);
+    drawLine(oldX,oldY,x,y,width,rgbaVal,eraser);
+    DrowLinePush(oldX,oldY,x,y,width,rgbaVal,eraser);
     oldX = x;
     oldY = y;
 
 }
-function drawLine(x1,y1,x2,y2,w,c) {
+function drawLine(x1,y1,x2,y2,w,c,e) {
     var can = document.getElementById("canvas");
     var con = can.getContext("2d");
     con.strokeStyle = c;
     con.lineWidth = w;
+    if(e){
+        con.globalCompositeOperation = "destination-out";
+    }else {
+        con.globalCompositeOperation = "source-over";
+    }
     //con.globalAlpha = a/10;
     con.lineCap = "round";
     con.beginPath();
@@ -78,10 +84,11 @@ function clearCanvas(){
 function eraseLine() {
     var con = document.getElementById('canvas').getContext("2d");
     var p = document.getElementById('lineproperty');
-
+    eraser = p.erase.checked;
+    /*
     if(p.erase.checked){
         con.globalCompositeOperation = "destination-out";
     }else {
         con.globalCompositeOperation = "source-over";
-    }
+    }*/
 }
