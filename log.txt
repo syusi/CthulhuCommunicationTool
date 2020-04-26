@@ -1,0 +1,4 @@
+2020/04/25 01時21分28秒 :
+{"name":"b","namehuri":"a","genger":"man","old":"0","dex":"11","work":"a"} : "aaa"
+2020/04/25 01時22分17秒 :
+"canvas" : {"source":"allmap.jpg","name":"マップ"}

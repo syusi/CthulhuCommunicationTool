@@ -120,7 +120,10 @@ function doRequest(req,res) {
                 str += "key : "+key+" , data : " + url_parts.query[key];
             }*/
             if (cookies.id != null) {
-                console.log("login(id:" + cookies.id + ")\n params : \n" + userInfo[cookies.id].printParam());
+                //logoutを実装したらなぜかこういった状況になった。要修正
+                if (userInfo[cookies.id] != null) {
+                    console.log("login(id:" + cookies.id + ")\n params : \n" + userInfo[cookies.id].printParam());   
+                }
             }
             //res.write(str);
             //res.write("<br>cookie : " + req.headers.cookie);

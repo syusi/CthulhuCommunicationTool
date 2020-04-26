@@ -213,6 +213,13 @@
                 buttleform.innerHTML +=  addform;
             }
 
+            function logout() {
+                if(window.confirm('logoutされます。よろしいですか？')){
+                    document.cookie = "id=; max-age=0";
+                    window.location.href = '/';
+                }
+            }
+
             //ここからMaster用の機能
             var enemyContentNum = 0;
             function addEnemyform() {
@@ -315,6 +322,10 @@
 
                     </tbody>
                 </table>
+
+                <form class="mr-auto">
+                    <button class="btn btn-danger" onclick="logout()">Logout</button>
+                </form>
             </div>
         </div>
 
@@ -355,11 +366,12 @@
                 </form>
             </div>
         </div>
-
+        
         <ul class="nav nav-tabs" id="tabs">
             <li class="nav-item"><a href="#chatSystem" class="nav-link active" data-toggle="tab">チャットルーム</a></li>
-            <li class="nav-item"><a href="#drow" class="nav-link" data-toggle="tab">チャットルーム2</a></li>
+            <li class="nav-item"><a href="#drow" class="nav-link" data-toggle="tab">画像共有用</a></li>
         </ul>
+
     </header>
 
 
